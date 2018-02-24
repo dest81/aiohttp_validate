@@ -117,7 +117,11 @@ def validate(request_schema=None, response_schema=None):
                 _validate_data(req_body, request_schema,
                                _request_schema_validator)
 
-            context = yield from coro(req_body, request)
+            # Supports class based views see web.View
+            if isinstance(args[0], AbstractView):
+                context = yield from coro(args[0], req_body)
+            else:
+                context = yield from coro(args[-1], req_body)
 
             # No validation of response for websockets stream
             if isinstance(context, web.StreamResponse):
